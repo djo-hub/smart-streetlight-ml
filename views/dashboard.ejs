@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Streetlight ML Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .kpi-value {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .kpi-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        input[readonly] {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        
+        small {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 3px;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            display: none;
+        }
+        
+        .result-normal { background: #26de8120; border-color: #26de81; }
+        .result-warning { background: #ffa50220; border-color: #ffa502; }
+        .result-critical { background: #ff475720; border-color: #ff4757; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #667eea;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .badge-success { background-color: #26de81; color: white; }
+        .badge-danger { background-color: #ff4757; color: white; }
+        .badge-warning { background-color: #ffa502; color: white; }
+        .badge-secondary { background-color: #95a5a6; color: white; }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .weather-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔦 Smart Streetlight ML Analysis 🌦️</h1>
+        
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Submissions</div>
+                <div class="kpi-value" id="kpi-total">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Anomalies Detected</div>
+                <div class="kpi-value" id="kpi-anomalies" style="color: #ff4757;">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">High Risk Faults</div>
+                <div class="kpi-value" id="kpi-faults" style="color: #ffa502;">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Lights ON</div>
+                <div class="kpi-value" id="kpi-on" style="color: #26de81;">0</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Lights OFF</div>
+                <div class="kpi-value" id="kpi-off" style="color: #95a5a6;">0</div>
+            </div>
+        </div>
+        
+        <!-- Submission Form -->
+        <div class="card">
+            <div class="card-title">📝 Submit Streetlight Data for Weather-Aware ML Analysis</div>
+            <p style="color: #666; margin-bottom: 15px;">
+                Enter power, dimming, and weather data. The ML model predicts state based on conditions.
+            </p>
+            <form id="submitForm">
+                <!-- Asset Selection -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Select Streetlight Asset *</label>
+                        <select id="input-asset-id" required>
+                            <option value="">-- Select Asset --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Street Name</label>
+                        <input type="text" id="input-street" placeholder="Auto-filled" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Zone</label>
+                        <input type="text" id="input-zone" placeholder="Auto-filled" readonly>
+                    </div>
+                </div>
+                
+                <!-- Power & Dimming -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Power Consumption (W) *</label>
+                        <input type="number" id="input-power" placeholder="e.g., 142.5" required step="0.1" min="0">
+                        <small>Sensor reading</small>
+                    </div>
+                </div>
+                
+                <!-- Weather Features (NO VISIBILITY) -->
+                <div class="weather-section">
+                    <h4 style="margin-bottom: 10px; color: #667eea;">🌦️ Weather Conditions</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Weather Condition *</label>
+                            <select id="input-weather" required>
+                                <option value="clear">☀️ Clear</option>
+                                <option value="cloudy">☁️ Cloudy</option>
+                                <option value="rain">🌧️ Rain</option>
+                                <option value="fog">🌫️ Fog</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Precipitation (mm/h) *</label>
+                            <input type="number" id="input-precipitation" value="0" min="0" step="0.1" required>
+                            <small>0=dry, >10=heavy</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Temperature (°C) *</label>
+                            <input type="number" id="input-temperature" value="20" step="0.1" required>
+                            <small>Ambient temp</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">🚀 Analyze with Weather Data</button>
+            </form>
+            
+            <div id="prediction-result" class="result-box"></div>
+        </div>
+        
+        <!-- User Data Table -->
+        <div class="card">
+            <div class="card-title">📋 Analysis History</div>
+            <div class="table-container">
+                <table id="userDataTable">
+                    <thead>
+                        <tr>
+                            <th>Asset ID</th>
+                            <th>Street</th>
+                            <th>Power (W)</th>
+                            <th>Weather</th>
+                            <th>Predicted State</th>
+                            <th>Anomaly</th>
+                            <th>Fault Risk</th>
+                            <th>Severity</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let assetsData = [];
+    
+        function getPredictionAPI() {
+            const hostname = window.location.hostname;
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:5000';
+            } else {
+                return `http://${hostname}:5000`;
+            }
+        }
+        
+        const PREDICTION_API = getPredictionAPI();
+        console.log(`Using Prediction API: ${PREDICTION_API}`);
+        
+        async function loadAssets() {
+            try {
+                const response = await fetch(`${PREDICTION_API}/assets`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    assetsData = data.assets;
+                    
+                    const select = document.getElementById('input-asset-id');
+                    select.innerHTML = '<option value="">-- Select Asset (Total: ' + data.count + ') --</option>';
+                    
+                    data.assets.forEach(asset => {
+                        const option = document.createElement('option');
+                        option.value = asset.asset_id;
+                        option.textContent = `${asset.asset_id} - ${asset.street} (Zone ${asset.zone})`;
+                        option.dataset.street = asset.street;
+                        option.dataset.zone = asset.zone;
+                        option.dataset.wattage = asset.wattage;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading assets:', error);
+                alert('Failed to load assets. Make sure prediction service is running.');
+            }
+        }
+        
+        document.getElementById('input-asset-id').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            
+            if (selectedOption.value) {
+                document.getElementById('input-street').value = selectedOption.dataset.street;
+                document.getElementById('input-zone').value = selectedOption.dataset.zone;
+                document.getElementById('input-power').value = '';
+                document.getElementById('input-power').focus();
+            } else {
+                document.getElementById('input-street').value = '';
+                document.getElementById('input-zone').value = '';
+                document.getElementById('input-power').value = '';
+            }
+        });
+        
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                document.getElementById('kpi-total').textContent = data.total_submissions;
+                document.getElementById('kpi-anomalies').textContent = data.anomalies;
+                document.getElementById('kpi-faults').textContent = data.high_risk_faults;
+                document.getElementById('kpi-on').textContent = data.lights_on;
+                document.getElementById('kpi-off').textContent = data.lights_off;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        document.getElementById('submitForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                asset_id: document.getElementById('input-asset-id').value,
+                power_w: parseFloat(document.getElementById('input-power').value),
+                weather: document.getElementById('input-weather').value,
+                precipitation: parseFloat(document.getElementById('input-precipitation').value),
+                temperature: parseFloat(document.getElementById('input-temperature').value)
+            };
+            
+            try {
+                const response = await fetch('/api/submit_data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                    return;
+                }
+                
+                const resultDiv = document.getElementById('prediction-result');
+                resultDiv.style.display = 'block';
+                resultDiv.className = `result-box result-${result.prediction.severity}`;
+                
+                const pred = result.prediction;
+                const analysis = result.analysis;
+                const asset = result.asset_info;
+                const weather = result.weather;
+                
+                resultDiv.innerHTML = `
+                    <h3 style="margin: 0 0 10px 0;">🎯 Weather-Aware ML Results</h3>
+                    <div style="margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 5px;">
+                        <strong>Asset:</strong> ${asset.asset_id} | 
+                        <strong>Street:</strong> ${asset.street} | 
+                        <strong>Zone:</strong> ${asset.zone} | 
+                        <strong>Wattage:</strong> ${asset.wattage}W
+                    </div>
+                    <div style="margin-bottom: 10px; padding: 10px; background: #667eea10; border-radius: 5px;">
+                        <strong>🌦️ Weather:</strong> ${weather.condition} | 
+                        <strong>Precipitation:</strong> ${weather.precipitation}mm/h | 
+                        <strong>Temp:</strong> ${weather.temperature}°C
+                        <br><small style="color: #666;">${weather.impact}</small>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <div style="padding: 15px; background: #667eea20; border-radius: 8px;">
+                            <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">ML PREDICTED STATE</div>
+                            <div style="font-size: 1.8em; font-weight: bold; color: #667eea;">${pred.predicted_state}</div>
+                            <small>Confidence: ${(pred.state_confidence * 100).toFixed(1)}%</small>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <div>
+                            <strong>Anomaly:</strong> ${pred.anomaly_label.toUpperCase()}<br>
+                            <small>Score: ${pred.anomaly_score.toFixed(4)}</small>
+                        </div>
+                        <div>
+                            <strong>Fault Risk:</strong> ${(pred.fault_probability * 100).toFixed(1)}%<br>
+                            <small>Severity: ${pred.severity.toUpperCase()}</small>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
+                        <small>
+                            Time: ${analysis.is_night ? '🌙 Night' : '☀️ Day'} | 
+                            Expected: ${analysis.expected_power}W | 
+                            Deviation: ${analysis.power_deviation}W | 
+                            ${analysis.irregular_behavior ? '⚠️ Irregular' : '✓ Normal'}
+                        </small>
+                    </div>
+                `;
+                
+                loadUserData();
+                loadStats();
+                
+                document.getElementById('input-power').value = '';
+                
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+        
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/user_data');
+                const data = await response.json();
+                
+                const tbody = document.querySelector('#userDataTable tbody');
+                tbody.innerHTML = '';
+                
+                data.forEach(item => {
+                    const severityBadge = 
+                        item.severity === 'critical' ? 'badge-danger' :
+                        item.severity === 'warning' ? 'badge-warning' : 'badge-success';
+                    
+                    const weatherIcon = {
+                        'clear': '☀️',
+                        'cloudy': '☁️',
+                        'rain': '🌧️',
+                        'fog': '🌫️'
+                    }[item.weather] || '☀️';
+                    
+                    const row = `
+                        <tr>
+                            <td>${item.asset_id}</td>
+                            <td>${item.street}</td>
+                            <td>${item.power_w}W</td>
+                            <td>${weatherIcon} ${item.weather || 'N/A'}</td>
+                            <td><span class="badge badge-${item.predicted_state === 'ON' ? 'success' : 'secondary'}">
+                                ${item.predicted_state || 'N/A'}
+                            </span></td>
+                            <td><span class="badge badge-${item.anomaly_label === 'anomaly' ? 'danger' : 'success'}">
+                                ${item.anomaly_label || 'N/A'}
+                            </span></td>
+                            <td>${item.fault_probability ? (item.fault_probability * 100).toFixed(1) + '%' : 'N/A'}</td>
+                            <td><span class="badge ${severityBadge}">${item.severity ? item.severity.toUpperCase() : 'N/A'}</span></td>
+                            <td>${new Date(item.ts).toLocaleString()}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+        
+        loadAssets();
+        loadStats();
+        loadUserData();
+        
+        setInterval(() => {
+            loadStats();
+            loadUserData();
+        }, 10000);
+    </script>
+</body>
+</html>

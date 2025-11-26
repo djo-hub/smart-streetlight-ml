@@ -1,0 +1,14 @@
+# 1. Generate training data
+python server.py
+
+# 2. Train models 
+python train.py
+
+# 3. Start prediction service
+python client.py
+
+# 4. Start dashboard (updated server.js)
+node server.js OR npm start OR npm run dev
+
+# 5. Open browser
+# http://localhost:3000
