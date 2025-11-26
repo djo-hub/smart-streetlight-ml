@@ -15,7 +15,7 @@ A weather-aware, energy-efficient smart streetlight analysis and monitoring plat
 ---
 
 ## 🏗 Project Structure
-.
+
 ├── dashboard.ejs # Dashboard frontend (HTML/JS, EJS)
 
 ├── server.js # Node.js API/dashboard backend
