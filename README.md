@@ -17,19 +17,31 @@ A weather-aware, energy-efficient smart streetlight analysis and monitoring plat
 ## 🏗 Project Structure
 .
 ├── dashboard.ejs # Dashboard frontend (HTML/JS, EJS)
+
 ├── server.js # Node.js API/dashboard backend
+
 ├── client.py # ML prediction Flask API
+
 ├── train.py # ML model training pipeline
+
 ├── server.py # Data seeder/simulator
+
 ├── requirements.txt # Python dependencies
+
 ├── package.json # Node.js dependencies
+
 ├── .gitignore # Git ignore rules
+
 ├── HOW_TO_RUN.txt # Full setup and usage instructions
+
 └── README.md # Project overview (this file)
 ---
 ## 🧠 Machine Learning Overview 
+
 Training Pipeline :
+
 Data Generation & Collection :
+
 Historical on/off states and power readings are generated for 145 real streetlights covering 72 hours, along with realistic weather conditions, using a custom seeder.
 Data is stored in MongoDB (status, ecl collections).
 
