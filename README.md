@@ -103,8 +103,10 @@ python train.py
 
 **6. Start prediction API (Terminal 1):**
 python client.py
+
 **7. Start dashboard server (Terminal 2):**
 node server.js
+
 **8. Open in browser:**
 http://localhost:3000
 
