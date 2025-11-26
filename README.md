@@ -30,8 +30,6 @@ A weather-aware, energy-efficient smart streetlight analysis and monitoring plat
 
 ├── package.json # Node.js dependencies
 
-├── .gitignore # Git ignore rules
-
 ├── HOW_TO_RUN.txt # Full setup and usage instructions
 
 └── README.md # Project overview (this file)
