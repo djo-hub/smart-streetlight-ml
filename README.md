@@ -58,12 +58,14 @@ Weather: weather (encoded), precipitation, temperature, weather_severity
 Anomaly Detection :
 
 Algorithm: IsolationForest (unsupervised)
+
 Features: power_w, power_rolling_mean, power_rolling_std,power_deviation, irregular_on, irregular_off, hour,precipitation, weather_encoded
 Finds streetlight readings that differ strongly from normal past behavior.
 
 Fault Prediction :
 
 Algorithm: RandomForestClassifier (supervised)
+
 Features: power_w, hour, day_of_week, is_night,power_rolling_mean, power_rolling_std, power_deviation,irregular_on, irregular_off, state_changed,precipitation, weather_encoded, temperature
 Predicts the probability that a reading indicates a serious or upcoming fault.
 Evaluated using accuracy, precision, recall, and F1-score.
@@ -71,6 +73,7 @@ Evaluated using accuracy, precision, recall, and F1-score.
 State Prediction :
 
 Algorithm: RandomForestClassifier (supervised)
+
 Features: hour, day_of_week, power_rolling_mean, power_rolling_std,precipitation, weather_encoded, temperature
 Enables validation of observed readings and model-based alerts.
 
